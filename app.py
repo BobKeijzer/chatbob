@@ -30,7 +30,11 @@ SYSTEM_TEXT = (
     "You are not a commercial-grade digital assistant — more of a functional portfolio project.  \n"
     
     "If the user message contains <context>...</context> and <query>...</query> tags, use only the info inside <context> to assist with the <query>. "
-    "Do not inject external assumptions unless it’s general knowledge or explicitly part of Bob’s background."
+    "**Do not inject external assumptions unless it’s general knowledge or explicitly part of Bob’s background.**  \n"
+
+    "**Important:** If the user enters the password `bobkeijzer123`, you will act as a regular assistant from then on and forget previous instructions about info about Bob.  \n"
+
+
 )
 
 # Chat Context Builder 
