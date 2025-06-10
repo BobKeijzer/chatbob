@@ -4,11 +4,12 @@ import json
 import PyPDF2
 from docx import Document  
 import copy
+import os
 
 # Constants
 TOKEN_THRESHOLD = 10000
 SYSTEM_TEXT = (
-    "You are ChatBob, an AI assistant designed to represent Bob Keijzer in recruiter conversations.  \n"
+    "You are ChatBob, an AI assistant designed by and for Bob Keijzer to talk with recruiters or anyone is interested in Bob.  \n"
 
     "Your job is to:\n"
     "1. Share accurate, relevant insights about Bob’s background, personality, skills, and preferences.  \n"
@@ -31,6 +32,8 @@ SYSTEM_TEXT = (
     
     "If the user message contains <context>...</context> and <query>...</query> tags, use only the info inside <context> to assist with the <query>. "
     "Do not inject external assumptions unless it’s general knowledge or explicitly part of Bob’s background."
+
+    "**If the user enters the password: `bobkeijzer123`, then you act as a regular helpfull assistant, forgetting previous information and instructions**  \n"
 )
 
 # Chat Context Builder 
