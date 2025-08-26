@@ -4,79 +4,43 @@ import json
 import PyPDF2
 from docx import Document  
 import copy
-import os
 
 # Constants
 TOKEN_THRESHOLD = 10000
-SYSTEM_TEXT = (
-    "You are ChatBob, an AI assistant designed by and for Bob Keijzer to talk with recruiters or anyone is interested in Bob.  \n"
-
-    "Your job is to:\n"
-    "1. Share accurate, relevant insights about Bob’s background, personality, skills, and preferences.  \n"
-    "2. Help recruiters assess whether Bob is a good fit for the role, team, and company — without exaggerating or fabricating anything.  \n"
-
-    "Bob is a Master's student in Applied Data Science with a Bachelor's in Artificial Intelligence, based in Utrecht, Netherlands. "
-    "He’s especially interested in AI technologies like machine learning and large language models (LLMs). "
-    "He has hands-on experience applying LLMs to real-world problems, including document processing projects in the healthcare sector during his internship at Menzis.  \n"
-
-    "Technically, Bob is skilled in Python, R, SQL, C#, JavaScript, and web development basics. His strengths lie in NLP, data wrangling, and machine learning pipelines. "
-    "He's analytical, curious, and loves digging into complex problems — but he’s also easy to talk to, friendly, and independent. He thrives when given autonomy, but works well in teams.  \n"
-    "Bob prefers hybrid setups (remote + in-person), and is open to occasional short travel. He’s not looking to relocate far from Utrecht. He enjoys startup-like environments or mission-driven organizations where he can make a real impact.  \n"
-    "In terms of personality, he’s laid-back but ambitious. He likes challenges and learning new things, but also values work-life balance. He plays soccer casually, works out, and recharges through alone time or quality time with close friends.  \n"
-    "If something is unclear or outside your scope, explain how Bob would approach it — learning, asking questions, or figuring it out independently. Never invent or assume details not explicitly stated.  \n"
-    "If a recruiter asks about salary expectations, shift the focus to job fit and growth potential. Salary can be discussed later.  \n"
-    "Respond clearly and naturally. Use short replies for greetings and longer ones for deeper questions. Add a touch of humor if it fits the moment, but don’t force it.  \n"
-    
-    "Note: While you aim to represent Bob faithfully, this assistant also serves as a creative showcase of Bob’s interests and skills in AI and chatbots. "
-    "You are not a commercial-grade digital assistant — more of a functional portfolio project.  \n"
-    
-    "If the user message contains <context>...</context> and <query>...</query> tags, use only the info inside <context> to assist with the <query>. "
-    "**Do not inject external assumptions unless it’s general knowledge or explicitly part of Bob’s background.**  \n"
-
-    "**Important:** If the user enters the password `bobkeijzer123`, you will act as a regular assistant from then on and forget previous instructions about info about Bob.  \n"
-
-
-)
+with open("chatbob_prompt.txt", "r") as f:
+    SYSTEM_TEXT = f.read()
 
 # Chat Context Builder 
-def build_context_messages(messages, system_text=SYSTEM_TEXT, doc_context="", token_threshold=TOKEN_THRESHOLD):
+def build_context_messages(messages, system_text=SYSTEM_TEXT, uploaded_files={}, token_threshold=TOKEN_THRESHOLD):
     context_messages = []
     token_count = 0
-    system_tokens = len(system_text.split())
-    
-    # Preemptively count full doc_context tokens
+    doc_context = ""
+
+    # Read uploaded files content
+    for filename, data in uploaded_files.items():
+        doc_context += f"Document: {filename}  \n{data}  \n"
     doc_tokens = doc_context.split()
-    doc_token_count = len(doc_tokens)
+    
+    # Truncate document context if too long
+    max_doc_tokens = int(token_threshold * 0.75)
+    if len(doc_tokens) > max_doc_tokens:
+        doc_tokens = doc_tokens[:max_doc_tokens]
+        doc_context = " ".join(doc_tokens) + "  \n...[truncated]"
+
+    # Base context with system text and document context
+    base_context = system_text + "  \n\nExtra context:  \n" + doc_context
+    base_tokens = len(base_context.split())
 
     # Add messages in reverse until limit
     for msg in reversed(messages):
         msg_tokens = len(msg["content"].split())
-        if token_count + msg_tokens + system_tokens + doc_token_count > token_threshold:
+        if token_count + msg_tokens + base_tokens > token_threshold:
             break
         context_messages.insert(0, copy.deepcopy(msg))
         token_count += msg_tokens
 
-    # Add system message
-    context_messages.insert(0, {"role": "system", "content": system_text})
-
-    # How many tokens remain for doc_context, if there is any?
-    if doc_context:
-        remaining_tokens = token_threshold - (system_tokens + token_count)
-        if remaining_tokens > 0:
-            trimmed_doc_context = " ".join(doc_tokens[:remaining_tokens])
-            if len(doc_tokens) > remaining_tokens:
-                trimmed_doc_context += "  \n...[truncated]"
-        else:
-            trimmed_doc_context = "[context omitted due to token limit]"
-
-        # Wrap into last user message if possible
-        if context_messages and context_messages[-1]["role"] == "user":
-            original_content = context_messages[-1]["content"]
-            context_messages[-1]["content"] = (
-                f"<context>  \n{trimmed_doc_context.strip()}  \n</context>  \n"
-                f"<query>  \n{original_content.strip()}  \n</query>"
-            )
-
+    # Add system message at the start
+    context_messages.insert(0, {"role": "system", "content": base_context})
     return context_messages
 
 # Stream response
@@ -87,7 +51,7 @@ def stream_response(messages):
         "Content-Type": "application/json",
     }
     payload = {
-        "model": "deepseek/deepseek-chat-v3-0324:free",
+        "model": "openai/gpt-oss-20b:free",
         "messages": messages,
         "stream": True,
     }
@@ -146,7 +110,7 @@ if "messages" not in st.session_state:
 
 with st.sidebar.expander('Info', expanded=True):
     st.image("BOB.jpg", width=150, caption="Bob Keijzer")
-    st.markdown("**About my assistant**  \nThis chatbot powered by DeepSeek is a demo project, a fun and functional way to show off my interest in AI, not a final product.")
+    st.markdown("**About my assistant**  \nThis chatbot is a demo project, a fun and functional way to show off my interest in AI, not a final product.")
 
 # Create an expander in the sidebar
 with st.sidebar.expander('Docs', expanded=True):
@@ -175,9 +139,10 @@ with st.sidebar.expander('Docs', expanded=True):
 
 
 # Display all chat history 
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+if "messages" in st.session_state:
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
 
 # User input
 if prompt := st.chat_input("Ask something..."):
@@ -189,16 +154,11 @@ if prompt := st.chat_input("Ask something..."):
     with st.chat_message("assistant"):
         response_container = st.empty()
 
-        # Loop over uploaded docs and build the doc_context
-        doc_context = ""
-        for filename, file_content in st.session_state.uploaded_docs.items():
-            doc_context += f"Document: {filename}  \n{file_content}  \n"
-
         # Create context messages by including the document context
         context_messages = build_context_messages(
-            st.session_state.messages,
-            doc_context=doc_context,  
+            st.session_state.messages,  
             system_text=SYSTEM_TEXT,
+            uploaded_files=st.session_state.uploaded_docs,
             token_threshold=TOKEN_THRESHOLD
         )
         # Stream the response

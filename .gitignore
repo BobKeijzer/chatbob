@@ -1,1 +1,7 @@
 .streamlit/secrets.toml
+.devcontainer/
+.vscode/
+__pycache__/
+.ipynb_checkpoints/
+.env
+.venv/
