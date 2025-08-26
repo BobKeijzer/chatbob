@@ -69,8 +69,6 @@ def stream_response(messages):
                             yield delta["content"]
                 except json.JSONDecodeError:
                     continue
-        # Save final response to session state
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 # Function to handle text files
 def handle_txt_file(uploaded_file):
@@ -162,4 +160,6 @@ if prompt := st.chat_input("Ask something..."):
             token_threshold=TOKEN_THRESHOLD
         )
         # Stream the response
-        response_container.write_stream(stream_response(context_messages))
+        full_response = response_container.write_stream(stream_response(context_messages))
+        # Save final response to session state
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
