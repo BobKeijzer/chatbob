@@ -1,4 +1,4 @@
-# ChatBob – Portfolio Chatbot  
+# ChatBob   
 
 ChatBob is a portfolio side project showcasing my interest in **Large Language Models (LLMs)** and conversational AI.  
 It’s a custom-built assistant that introduces me (Bob Keijzer) to recruiters and curious visitors.  
@@ -12,7 +12,7 @@ Check it out here: [ChatBob](https://chatbobai.streamlit.app)
 - Early experiments included running **local quantized LLMs via Hugging Face**  
 
 ## Why this project?
-This project started as an exploration of LLMs in practice, and grew into a personal assistant chatbot.  
+This project started as an exploration of LLMs in practice for fun and learning, and grew into a personal assistant chatbot.  
 It highlights my **curiosity in LLMs and agentic behavior** and inspired me to dive deeper into:  
 - React frontends  
 - FastAPI backends  
@@ -20,7 +20,7 @@ It highlights my **curiosity in LLMs and agentic behavior** and inspired me to d
 - Identity-based integrations with external data sources  
 
 ## Status  
-This is **not a production-ready product** — it’s a functional portfolio showcase.  
+This is **not a production-ready product** — it is a functional portfolio showcase.  
 The goal is to demonstrate my passion for AI and serve as a stepping stone toward building more advanced agentic systems.  
 
 **Disclaimer**  
