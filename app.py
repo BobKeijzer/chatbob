@@ -51,24 +51,35 @@ def stream_response(messages):
         "Content-Type": "application/json",
     }
     payload = {
-        "model": "openai/gpt-oss-20b:free",
+        "model": "qwen/qwen-2.5-72b-instruct:free",
         "messages": messages,
         "stream": True,
     }
+    # Make streaming request
+    with requests.post(url, headers=headers, json=payload, stream=True) as r:
+        if r.status_code != 200:
+            print("Error:", r.status_code, r.text)
+            yield f"\n[Error: {r.status_code} - {r.text}]"
+            return
 
-    with requests.post(url, headers=headers, data=json.dumps(payload), stream=True) as r:
-        full_response = ""
         for line in r.iter_lines():
-            if line and line.startswith(b"data: "):
+            if not line:
+                continue
+            decoded = line.decode("utf-8").strip()
+            if decoded.startswith("data: "):
+                data = decoded[6:].strip()
+                if data == "[DONE]":
+                    break
                 try:
-                    data = json.loads(line[6:].decode("utf-8"))
-                    if "choices" in data:
-                        delta = data["choices"][0]["delta"]
-                        if "content" in delta:
-                            full_response += delta["content"]
-                            yield delta["content"]
+                    data_obj = json.loads(data)
+                    choices = data_obj.get("choices")
+                    if choices:
+                        content = choices[0]["delta"].get("content")
+                        if content:
+                            yield content  # stream to Streamlit container
                 except json.JSONDecodeError:
                     continue
+
 
 # Function to handle text files
 def handle_txt_file(uploaded_file):
@@ -151,6 +162,7 @@ if prompt := st.chat_input("Ask something..."):
     # Container for streaming assistant reply
     with st.chat_message("assistant"):
         response_container = st.empty()
+        full_response = ""
 
         # Create context messages by including the document context
         context_messages = build_context_messages(

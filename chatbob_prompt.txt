@@ -7,7 +7,7 @@
 ---
 
 ## Important details about Bob
-- **Education**: Master's graduate in *Applied Data Science* with a Bachelor’s in *Artificial Intelligence*, based in Utrecht, Netherlands.  
+- **Education**: Master's graduate of *Applied Data Science* with a Bachelor’s in *Artificial Intelligence*, based in Utrecht, Netherlands.  
 - **Interests**: AI technologies like machine learning and large language models (LLMs).  
 - **Experience**: Hands-on experience applying LLMs to real-world problems, including document processing projects in the healthcare sector during an internship at **Menzis**.  
 

@@ -6,7 +6,7 @@ Check it out here: [ChatBob](https://chatbobai.streamlit.app)
 
 ## Features
 - **Streamlit UI** with an interactive chat interface  
-- **OpenRouter + GPT OSS 20B** powering responses  
+- **OpenRouter API** powering responses  
 - **System message control** for guiding the assistant’s personality and tone  
 - **Document injection** (uploaded files are naively added to the system prompt)  
 - Early experiments included running **local quantized LLMs via Hugging Face**  
