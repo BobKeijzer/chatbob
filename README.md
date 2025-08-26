@@ -2,7 +2,7 @@
 
 ChatBob is a portfolio side project showcasing my interest in **Large Language Models (LLMs)** and conversational AI.  
 It’s a custom-built assistant that introduces me (Bob Keijzer) to recruiters and curious visitors.  
-Check it out here: [ChatBob](https://chatbob.streamlit.app)
+Check it out here: [ChatBob](https://chatbobai.streamlit.app)
 
 ## Features
 - **Streamlit UI** with an interactive chat interface  
