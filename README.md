@@ -25,5 +25,5 @@ The goal is to demonstrate my passion for AI and serve as a stepping stone towar
 
 **Disclaimer**  
 The chatbot may occasionally produce inaccurate or incomplete information.  
-It is intended as a demo of conversational AI, not as a source of guaranteed facts and may produce false information.
+It is intended as a demo of conversational AI, not as a source of guaranteed facts.
 
